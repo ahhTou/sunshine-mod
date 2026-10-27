@@ -5,8 +5,8 @@
 - 上游：LizardByte/Sunshine。GitHub 仓库已建立正式 Fork 关系，个人改版默认分支为 main，上游 master 分支保留。
 - 原独立仓库保留备份：https://github.com/ahhTou/sunshine-mod-backup-20261027。
 - 原始基线：v2026.914.233613，提交 `63d35f702ee9e362e43263742981836ec0710384`。
-- 本升级分支已合并上游 master 至 `d0b4a88e`；main 和现用远控保持原版。升级记录见 [UPGRADE-20261027.md](sunshine-mod/UPGRADE-20261027.md)。
-- 本地升级分支：codex/upgrade-sunshine-20261027；upstream 指向官方仓库，origin 指向 https://github.com/ahhTou/sunshine-mod。
+- main 已合并升级分支 `650d1aac`，包含上游 master 至 `d0b4a88e`；现用远控服务未切换。升级记录见 [UPGRADE-20261027.md](sunshine-mod/UPGRADE-20261027.md)。
+- 主分支：main；升级准备分支：codex/upgrade-sunshine-20261027；upstream 指向官方仓库，origin 指向 https://github.com/ahhTou/sunshine-mod。
 - 保留上游 Git 提交与 GPL 许可证、各子模块原始许可。已从上游补齐基线之前的提交历史。
 
 ## 本次移入

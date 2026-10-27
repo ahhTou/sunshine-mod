@@ -2,7 +2,7 @@
 
 Sunshine 的个人小改版，主要优化 macOS 屏幕采集与编码延迟，让远程桌面更跟手。
 
-本升级分支基于 [LizardByte/Sunshine](https://github.com/LizardByte/Sunshine) `master` 提交 `d0b4a88e`（原始改版基于 `v2026.914.233613`），保留完整主机端源码与上游 Git 关系。它是 Moonlight 协议的被控端，可搭配 Moonlight 或 moonlight-web 使用。
+基于 [LizardByte/Sunshine](https://github.com/LizardByte/Sunshine) `master` 提交 `d0b4a88e`（原始改版基于 `v2026.914.233613`），保留完整主机端源码与上游 Git 关系。它是 Moonlight 协议的被控端，可搭配 Moonlight 或 moonlight-web 使用。
 
 ## 主要改动
 
@@ -40,7 +40,7 @@ cat /private/tmp/sunshine-mod-diagnostic.json
 # capture = avfoundation
 ```
 
-升级分支建议使用独立构建缓存：
+本次升级建议使用独立构建缓存：
 
 ```sh
 SUNSHINE_MOD_BUILD_DIR=cmake-build-sunshine-mod-upgrade sh sunshine-mod/build-macos.sh
