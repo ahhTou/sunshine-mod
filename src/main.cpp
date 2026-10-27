@@ -181,7 +181,16 @@ void mainThreadLoop(const std::shared_ptr<safe::event_t<bool>> &shutdown_event) 
  * @param argv The arguments.
  * @return Process or platform callback exit code.
  */
+#ifdef __APPLE__
+/** @brief 无监听端口的录屏权限与采集生命周期自检。 */
+extern "C" int sunshine_sck_diagnostic(const char *mode);
+#endif
 int main(int argc, char *argv[]) {
+#ifdef __APPLE__
+  if (argc == 2 && (std::strcmp(argv[1], "--sck-permissions") == 0 || std::strcmp(argv[1], "--sck-self-test") == 0)) {
+    return sunshine_sck_diagnostic(argv[1]);
+  }
+#endif
 #ifdef __linux__
   const bool privileged_execution = getauxval(AT_SECURE) != 0 || platf::has_elevated_privileges(true);
   if (privileged_execution && !platf::sanitize_process_environment()) {

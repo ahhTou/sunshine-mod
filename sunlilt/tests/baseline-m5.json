@@ -1,0 +1,26 @@
+[
+  {
+    "samples": 155,
+    "p50_ms": 49.969,
+    "p95_ms": 53.583,
+    "packets": 180,
+    "keyframes": 1,
+    "mode": "off"
+  },
+  {
+    "samples": 155,
+    "p50_ms": 4.77,
+    "p95_ms": 4.894,
+    "packets": 180,
+    "keyframes": 1,
+    "mode": "on"
+  },
+  {
+    "samples": 155,
+    "p50_ms": 50.058,
+    "p95_ms": 53.377,
+    "packets": 180,
+    "keyframes": 1,
+    "mode": "off"
+  }
+]
