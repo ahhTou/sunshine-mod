@@ -34,6 +34,10 @@
 #include <src/nvhttp.h>
 #include <src/utility.h>
 
+#ifdef SUNSHINE_BUILD_PORTAL
+  #include <src/platform/linux/misc.h>
+#endif
+
 using namespace std::literals;
 
 namespace {
@@ -120,6 +124,10 @@ protected:
       license.message = "Test license status";
       return lvh::LicenseResult {lvh::OperationStatus::success(), std::move(license)};
     });
+    confighttp::set_permission_statuses_for_testing(nlohmann::json::array({
+      {{"id", "screen_recording"}, {"status", "denied"}, {"required", true}, {"verifiable", true}},
+      {{"id", "notifications"}, {"status", "granted"}, {"required", false}, {"verifiable", true}},
+    }));
 
     // Save current config
     saved_username = config::sunshine.username;
@@ -151,10 +159,10 @@ protected:
       return test_web_dir / "portal_token";
     });
 
-    // Create test HTML file in WEB_DIR, creating parent directories with proper permissions
+    // Create the SPA entry document in WEB_DIR, creating parent directories with proper permissions
     std::filesystem::path web_dir_path(WEB_DIR);
     std::filesystem::create_directories(web_dir_path);
-    web_dir_test_file = web_dir_path / "test_page.html";
+    web_dir_test_file = web_dir_path / "index.html";
 
     std::ofstream test_html(web_dir_test_file);
     test_html << "<html><head><title>Test Page</title></head><body><h1>Test Page Content</h1></body></html>";
@@ -207,19 +215,19 @@ protected:
     // Add a route to test not_found
     server->resource["^/notfound-test$"]["GET"] = [](
                                                     const std::shared_ptr<SimpleWeb::ServerBase<SimpleWeb::HTTPS>::Response> &response,
-                                                    const std::shared_ptr<SimpleWeb::ServerBase<SimpleWeb::HTTPS>::Request> &request
+                                                    const std::shared_ptr<SimpleWeb::ServerBase<SimpleWeb::HTTPS>::Request> &
                                                   ) {
       // Call the actual confighttp::not_found function
-      confighttp::not_found(response, request, "Test not found");
+      confighttp::not_found(response, "Test not found");
     };
 
     // Add a route to test bad_request
     server->resource["^/badrequest-test$"]["GET"] = [](
                                                       const std::shared_ptr<SimpleWeb::ServerBase<SimpleWeb::HTTPS>::Response> &response,
-                                                      const std::shared_ptr<SimpleWeb::ServerBase<SimpleWeb::HTTPS>::Request> &request
+                                                      const std::shared_ptr<SimpleWeb::ServerBase<SimpleWeb::HTTPS>::Request> &
                                                     ) {
       // Call the actual confighttp::bad_request function
-      confighttp::bad_request(response, request, "Test bad request");
+      confighttp::bad_request(response, "Test bad request");
     };
 
     // Add a route to test send_response with JSON
@@ -288,8 +296,8 @@ protected:
                                                 const std::shared_ptr<SimpleWeb::ServerBase<SimpleWeb::HTTPS>::Request> &request
                                               ) {
       // Call the actual confighttp::getPage function
-      // Note: This will read from WEB_DIR, so we need to ensure the file exists there
-      confighttp::getPage(response, request, "test_page.html", true, false);
+      // Note: This reads the SPA index from WEB_DIR, so the fixture creates it in SetUp().
+      confighttp::getPage(response, request, true, false);
     };
 
     // Add a route to test getPage without auth requirement
@@ -297,7 +305,7 @@ protected:
                                                        const std::shared_ptr<SimpleWeb::ServerBase<SimpleWeb::HTTPS>::Response> &response,
                                                        const std::shared_ptr<SimpleWeb::ServerBase<SimpleWeb::HTTPS>::Request> &request
                                                      ) {
-      confighttp::getPage(response, request, "test_page.html", false, false);
+      confighttp::getPage(response, request, false, false);
     };
 
     // Add a route to test getPage with redirect_if_username
@@ -305,7 +313,7 @@ protected:
                                                          const std::shared_ptr<SimpleWeb::ServerBase<SimpleWeb::HTTPS>::Response> &response,
                                                          const std::shared_ptr<SimpleWeb::ServerBase<SimpleWeb::HTTPS>::Request> &request
                                                        ) {
-      confighttp::getPage(response, request, "test_page.html", false, true);
+      confighttp::getPage(response, request, false, true);
     };
 
     // Add a route to test getLocale
@@ -328,10 +336,13 @@ protected:
     server->resource["^/virtual-input-status-test$"]["GET"] = confighttp::getVirtualInputStatus;
     server->resource["^/virtual-input-license-test$"]["GET"] = confighttp::getVirtualInputLicense;
     server->resource["^/virtual-input-license-test$"]["POST"] = confighttp::updateVirtualInputLicense;
+    server->resource["^/permissions-test$"]["GET"] = confighttp::getPermissions;
+    server->resource["^/permissions-test$"]["POST"] = confighttp::requestPermission;
     server->resource["^/pairing-test$"]["DELETE"] = confighttp::cancelPairing;
     server->resource["^/pairing-test$"]["GET"] = confighttp::getPendingPairings;
     server->resource["^/pairing-test$"]["POST"] = confighttp::savePin;
     server->resource["^/portal-token-reset-test$"]["POST"] = confighttp::resetPortalToken;
+    server->default_resource["GET"] = confighttp::getFallbackPage;
 
     // Start server
     server_thread = std::jthread([this]() {
@@ -365,6 +376,7 @@ protected:
       server_thread.join();
     }
     confighttp::reset_virtual_input_license_status_provider_for_testing();
+    confighttp::reset_permission_statuses_for_testing();
     confighttp::reset_portal_token_path_provider_for_testing();
 
     config::sunshine.username = saved_username;
@@ -731,6 +743,53 @@ TEST_F(ConfigHttpTest, PortalTokenResetReportsDeletionFailure) {
   EXPECT_TRUE(std::filesystem::exists(token_path));
 }
 
+#ifdef SUNSHINE_BUILD_PORTAL
+TEST_F(ConfigHttpTest, PortalTokenResetUsesSessionResolverAndPreservesOtherDesktops) {
+  const auto active_token = test_web_dir / "portal_token.kde";
+  const auto other_token = test_web_dir / "portal_token.gnome";
+  std::ofstream(active_token) << "kde-token";
+  std::ofstream(other_token) << "gnome-token";
+  confighttp::set_portal_token_path_provider_for_testing([this]() {
+    return portal::get_saved_token_path_for_testing(test_web_dir, "KDE");
+  });
+
+  SimpleWeb::CaseInsensitiveMultimap headers;
+  headers.emplace("Authorization", create_auth_header("testuser", "testpass"));
+  headers.emplace("Origin", std::format("https://localhost:{}", port));
+  const auto response = client->request("POST", "/portal-token-reset-test", "", headers);
+
+  ASSERT_EQ(response->status_code, "200 OK");
+  EXPECT_TRUE(nlohmann::json::parse(response->content.string()).at("status").get<bool>());
+  EXPECT_FALSE(std::filesystem::exists(active_token));
+  ASSERT_TRUE(std::filesystem::exists(other_token));
+  std::ifstream remaining_token(other_token);
+  std::string value;
+  std::getline(remaining_token, value);
+  EXPECT_EQ(value, "gnome-token");
+}
+
+TEST_F(ConfigHttpTest, PortalTokenResetRemovesMigratedLegacyToken) {
+  const auto legacy_token = test_web_dir / "portal_token";
+  const auto active_token = test_web_dir / "portal_token.kde";
+  std::ofstream(legacy_token) << "legacy-token";
+  confighttp::set_portal_token_path_provider_for_testing([this]() {
+    return portal::get_saved_token_path_for_testing(test_web_dir, "KDE");
+  });
+
+  SimpleWeb::CaseInsensitiveMultimap headers;
+  headers.emplace("Authorization", create_auth_header("testuser", "testpass"));
+  headers.emplace("Origin", std::format("https://localhost:{}", port));
+  const auto response = client->request("POST", "/portal-token-reset-test", "", headers);
+
+  ASSERT_EQ(response->status_code, "200 OK");
+  EXPECT_TRUE(nlohmann::json::parse(response->content.string()).at("status").get<bool>());
+  EXPECT_FALSE(std::filesystem::exists(legacy_token));
+  EXPECT_FALSE(std::filesystem::exists(active_token));
+  EXPECT_EQ(portal::get_saved_token_path_for_testing(test_web_dir, "KDE"), active_token);
+  EXPECT_FALSE(std::filesystem::exists(active_token));
+}
+#endif
+
 // Test: confighttp::authenticate() rejects requests without auth header
 TEST_F(ConfigHttpTest, AuthenticateRejectsNoAuth) {
   const auto response = client->request("GET", "/auth-test");
@@ -1054,6 +1113,26 @@ TEST_F(ConfigHttpTest, GetPageNoRedirectWhenUsernameEmpty) {
 
   // Restore username
   config::sunshine.username = saved;
+}
+
+// Test: browser routes fall back to the SPA entry document
+TEST_F(ConfigHttpTest, BrowserRouteFallsBackToSpaEntry) {
+  SimpleWeb::CaseInsensitiveMultimap headers;
+  headers.emplace("Authorization", create_auth_header("testuser", "testpass"));
+
+  for (const std::string_view path : {"/future-browser-route", "/apiary", "/assets2"}) {
+    const auto response = client->request("GET", std::string {path}, "", headers);
+    EXPECT_EQ(response->status_code, "200 OK") << path;
+    EXPECT_NE(response->content.string().find("Test Page Content"), std::string::npos) << path;
+  }
+}
+
+// Test: server-owned route prefixes retain 404 behavior instead of returning the SPA
+TEST_F(ConfigHttpTest, ServerResourcePrefixesDoNotFallBackToSpaEntry) {
+  for (const std::string_view path : {"/api", "/api/unknown", "/assets", "/assets/missing.js", "/images", "/images/missing.png"}) {
+    const auto response = client->request("GET", std::string {path});
+    EXPECT_EQ(response->status_code, "404 Not Found") << path;
+  }
 }
 
 // Test: confighttp::getLocale() returns locale JSON
@@ -1615,8 +1694,17 @@ TEST(ConfigHttpDriverStatusTest, BuildsLiveVirtualInputDriverStatus) {
   EXPECT_TRUE(virtualhid.contains("development_version"));
   EXPECT_TRUE(virtualhid.contains("backend_name"));
   EXPECT_TRUE(virtualhid.contains("requires_installed_driver"));
+#ifdef __APPLE__
+  EXPECT_EQ(virtualhid["minimum_version"].get<std::string>(), LIBVIRTUALHID_MACOS_MINIMUM_VERSION);
+  EXPECT_EQ(virtualhid["supported_versions"].get<std::string>(), std::format(">= {}", LIBVIRTUALHID_MACOS_MINIMUM_VERSION));
+  if (std::filesystem::exists("/Applications/VirtualHIDBroker.app/Contents/Info.plist")) {
+    EXPECT_TRUE(virtualhid["installed"].get<bool>());
+    EXPECT_FALSE(virtualhid["version"].get<std::string>().empty());
+  }
+#else
   EXPECT_EQ(virtualhid["minimum_version"].get<std::string>(), LIBVIRTUALHID_MINIMUM_VERSION);
   EXPECT_EQ(virtualhid["supported_versions"].get<std::string>(), std::format(">= {}", LIBVIRTUALHID_MINIMUM_VERSION));
+#endif
 
   const auto vigembus = confighttp::get_vigembus_driver_status();
   EXPECT_TRUE(vigembus.contains("installed"));
@@ -1642,6 +1730,43 @@ TEST_F(ConfigHttpTest, VirtualInputStatusReturnsBothBackends) {
   ASSERT_TRUE(body.contains("vigembus"));
   EXPECT_TRUE(body.at("virtualhid").contains("installed"));
   EXPECT_TRUE(body.at("vigembus").contains("installed"));
+}
+
+TEST_F(ConfigHttpTest, PermissionsEndpointRequiresAuthenticationAndCsrf) {
+  SimpleWeb::CaseInsensitiveMultimap headers;
+  headers.emplace("Content-Type", "application/json");
+  EXPECT_EQ(client->request("GET", "/permissions-test", "", headers)->status_code, "401 Unauthorized");
+  EXPECT_EQ(client->request("POST", "/permissions-test", R"({"id":"screen_recording"})", headers)->status_code, "401 Unauthorized");
+
+  headers.emplace("Authorization", create_auth_header("testuser", "testpass"));
+  headers.emplace("Origin", "https://example.invalid");
+  const auto response = client->request("POST", "/permissions-test", R"({"id":"screen_recording"})", headers);
+  EXPECT_EQ(response->status_code, "400 Bad Request");
+  EXPECT_TRUE(response->content.string().contains("Missing CSRF token"));
+}
+
+TEST_F(ConfigHttpTest, PermissionsEndpointReturnsRequiredAndOptionalStatuses) {
+  SimpleWeb::CaseInsensitiveMultimap headers;
+  headers.emplace("Authorization", create_auth_header("testuser", "testpass"));
+
+  const auto response = client->request("GET", "/permissions-test", "", headers);
+  ASSERT_EQ(response->status_code, "200 OK");
+  const auto body = nlohmann::json::parse(response->content.string());
+  ASSERT_EQ(body.at("permissions").size(), 2U);
+  EXPECT_EQ(body.at("permissions").at(0).at("id"), "screen_recording");
+  EXPECT_TRUE(body.at("permissions").at(0).at("required").get<bool>());
+  EXPECT_FALSE(body.at("permissions").at(1).at("required").get<bool>());
+}
+
+TEST_F(ConfigHttpTest, PermissionsEndpointRejectsMalformedAndUnknownRequests) {
+  SimpleWeb::CaseInsensitiveMultimap headers;
+  headers.emplace("Content-Type", "application/json");
+  headers.emplace("Authorization", create_auth_header("testuser", "testpass"));
+  headers.emplace("Origin", std::format("https://localhost:{}", port));
+
+  EXPECT_EQ(client->request("POST", "/permissions-test", "not-json", headers)->status_code, "400 Bad Request");
+  EXPECT_EQ(client->request("POST", "/permissions-test", R"({"id":1})", headers)->status_code, "400 Bad Request");
+  EXPECT_EQ(client->request("POST", "/permissions-test", R"({"id":"unknown"})", headers)->status_code, "400 Bad Request");
 }
 
 TEST_F(ConfigHttpTest, VirtualInputLicenseReturnsCurrentStatus) {
@@ -1688,7 +1813,7 @@ TEST(ConfigHttpLicenseStatusTest, BuildVirtualHidLicenseStatus_IncludesExpectedF
   license.state = lvh::LicenseState::licensed;
   license.active_devices = 2;
   license.activation_limit = 5;
-  license.activation_usage = 3;
+  license.activation_usage = 1;
   license.plan_name = "Yearly";
   license.customer_email = "customer@example.com";
   license.message = "License is active";
@@ -1700,7 +1825,7 @@ TEST(ConfigHttpLicenseStatusTest, BuildVirtualHidLicenseStatus_IncludesExpectedF
   EXPECT_TRUE(output["service_available"].get<bool>());
   EXPECT_EQ(output["active_devices"].get<unsigned int>(), 2U);
   EXPECT_EQ(output["activation_limit"].get<unsigned int>(), 5U);
-  EXPECT_EQ(output["activation_usage"].get<unsigned int>(), 3U);
+  EXPECT_EQ(output["activation_usage"].get<unsigned int>(), 1U);
   EXPECT_EQ(output["plan_name"].get<std::string>(), "Yearly");
   EXPECT_EQ(output["customer_email"].get<std::string>(), "customer@example.com");
   EXPECT_FALSE(output.contains("expires_at"));

@@ -14,6 +14,26 @@ It is recommended to use one of the following compilers:
 
 ### Dependencies
 
+Boost `1.89.0` or newer can be supplied as a system package. When a compatible system package is unavailable, CMake
+downloads the project-locked Boost release through CPM. Static Boost libraries are preferred on every platform by
+default; pass `-DBOOST_USE_STATIC=OFF` to use shared system libraries instead.
+
+Sunshine's build and packaging automation uses packaged static Boost libraries on Arch Linux, Fedora 44 or newer,
+Ubuntu 26.04 or newer, macOS with Homebrew, Windows with MSYS2, and FreeBSD. Older supported distributions continue
+to use the CPM fallback because their repositories do not meet the minimum Boost version.
+
+On Linux and FreeBSD, Sunshine and the prebuilt FFmpeg libraries use the system's shared libva core and backends.
+These components share a private display-context ABI and must come from the same libva build. Sunshine also uses
+the system libva headers so its compatibility shims match the installed API. Bundled libva archives and headers
+are excluded from the build. The system provides libdrm, the GPU's VA-API driver, and libva's driver configuration.
+AppImages use the same system libraries at runtime; they do not bundle libva.
+
+#### Prebuilt Web UI
+
+Sunshine releases publish the platform-independent Web UI as the `@lizardbyte/sunshine` package to npm and GitHub
+Packages. The package contains the production assets under `build/assets/web`, so downstream packagers can install the
+Web UI without running Node.js or Vite during the native Sunshine build.
+
 #### FreeBSD
 > [!CAUTION]
 > Sunshine support for FreeBSD is experimental and may be incomplete or not work as expected
@@ -121,11 +141,11 @@ brew install "${dependencies[@]}"
 
 If there are issues with an SSL header that is not found:
 
-@tabs{
-  @tab{ Intel | ```bash
+@tabs_grouped{mac-architecture|:|
+  @tab{ Intel |:| ```bash
     ln -s /usr/local/opt/openssl/include/openssl /usr/local/include/openssl
     ```}
-  @tab{ Apple Silicon | ```bash
+  @tab{ Apple Silicon |:| ```bash
     ln -s /opt/homebrew/opt/openssl/include/openssl /opt/homebrew/include/openssl
     ```
   }
@@ -235,33 +255,33 @@ ninja -C build
 
 ### Package
 
-@tabs{
-  @tab{FreeBSD | @tabs{
-    @tab{pkg | ```bash
+@tabs_grouped{platform|:|
+  @tab{FreeBSD |:| @tabs{
+    @tab{pkg |:| ```bash
       cpack -G FREEBSD --config ./build/CPackConfig.cmake
       ```}
   }}
-  @tab{Linux | @tabs{
-    @tab{deb | ```bash
+  @tab{Linux |:| @tabs{
+    @tab{deb |:| ```bash
       cpack -G DEB --config ./build/CPackConfig.cmake
       ```}
-    @tab{rpm | ```bash
+    @tab{rpm |:| ```bash
       cpack -G RPM --config ./build/CPackConfig.cmake
       ```}
   }}
-  @tab{macOS | @tabs{
-    @tab{DragNDrop | ```bash
+  @tab{macOS |:| @tabs{
+    @tab{DragNDrop |:| ```bash
       cpack -G DragNDrop --config ./build/CPackConfig.cmake
       ```}
   }}
-  @tab{Windows | @tabs{
-    @tab{NSIS Installer | ```bash
+  @tab{Windows |:| @tabs{
+    @tab{NSIS Installer |:| ```bash
       cpack -G NSIS --config ./build/CPackConfig.cmake
       ```}
-    @tab{WiX Installer | ```bash
+    @tab{WiX Installer |:| ```bash
       cpack -G WIX --config ./build/CPackConfig.cmake
       ```}
-    @tab{Portable | ```bash
+    @tab{Portable |:| ```bash
       cpack -G ZIP --config ./build/CPackConfig.cmake
       ```}
   }}
@@ -274,16 +294,3 @@ It may be beneficial to build remotely in some cases. This will enable easier bu
 2. Activate workflows
 3. Trigger the *CI* workflow manually
 4. Download the artifacts/binaries from the workflow run summary
-
-<div class="section_buttons">
-
-| Previous                              |                            Next |
-|:--------------------------------------|--------------------------------:|
-| [Troubleshooting](troubleshooting.md) | [Contributing](contributing.md) |
-
-</div>
-
-<details style="display: none;">
-  <summary></summary>
-  [TOC]
-</details>

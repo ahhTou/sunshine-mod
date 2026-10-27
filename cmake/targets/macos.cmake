@@ -19,9 +19,11 @@ else()
             COMMENT "Copying bundle resources to build tree"
             COMMAND "${CMAKE_COMMAND}" -E make_directory "${_bundle_resources_dir}"
             COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_BINARY_DIR}/assets" "${_bundle_resources_dir}/assets"
-            # 开发构建也需要 macOS 默认应用列表与图标，不能只依赖 install 阶段。
+            # 开发构建也需要 macOS 默认应用列表。
             COMMAND "${CMAKE_COMMAND}" -E copy_directory "${SUNSHINE_SOURCE_ASSETS_DIR}/macos/assets" "${_bundle_resources_dir}/assets"
-            COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_SOURCE_DIR}/src_assets/macos/build/sunshine.icns" "${_bundle_resources_dir}/sunshine.icns"
+            COMMAND "${CMAKE_COMMAND}" -E copy_if_different
+                    "${PROJECT_SOURCE_DIR}/src_assets/macos/build/sunshine.icns"
+                    "${_bundle_resources_dir}/sunshine.icns"
             VERBATIM)
 endif()
 
