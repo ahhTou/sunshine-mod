@@ -1,0 +1,55 @@
+{
+  "fill": {
+    "automatic-gradient": "extended-srgb:0.04314,0.11765,0.19216,1.00000"
+  },
+  "groups": [
+    {
+      "name": "02 八爪鱼",
+      "layers": [
+        {
+          "image-name": "03-face.svg",
+          "name": "表情",
+          "glass": false
+        },
+        {
+          "image-name": "02-octopus.svg",
+          "name": "站点 favicon 原始轮廓",
+          "glass": true
+        }
+      ],
+      "shadow": {
+        "kind": "neutral",
+        "opacity": 0.35
+      },
+      "specular": true,
+      "translucency": {
+        "enabled": false,
+        "value": 0.5
+      }
+    },
+    {
+      "name": "01 太阳光",
+      "layers": [
+        {
+          "image-name": "01-sunlight.svg",
+          "name": "太阳与十二束光",
+          "glass": true
+        }
+      ],
+      "shadow": {
+        "kind": "neutral",
+        "opacity": 0.18
+      },
+      "specular": true,
+      "translucency": {
+        "enabled": false,
+        "value": 0.5
+      }
+    }
+  ],
+  "supported-platforms": {
+    "squares": [
+      "macOS"
+    ]
+  }
+}

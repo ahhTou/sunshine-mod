@@ -1,25 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- macOS app icon source. The Sunshine paths below come from ../../sunshine.svg. -->
-<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 256 256">
-  <title>Sunshine macOS app icon</title>
-  <desc>Sunshine logo on a borderless charcoal tile.</desc>
-  <rect width="256" height="256" rx="52" fill="#1c1c1e"/>
-  <g transform="translate(7.68 7.68) scale(0.94)">
-    <path fill="#FDD107" d="M118.7688675,20.7120476c0,0-63.8333359,26-74.3333359,83.8333282s37.1666718,91.5,86.3333282,75.3333282
-      s70.3333435-51,81.8333435-86.9999924c0,0-9.3333435,100.4999924-96.1666718,115.4999924s-118.1666641-50-82.1666641-119.8333282
-      C44.2688675,67.0453796,80.5188675,29.6287155,118.7688675,20.7120476z"/>
-    <path fill="#F89A1C" d="M118.7688675,20.7120476c0,0-41.125,3.6666679-83.25,61.0416679s-28.125,139.125,34.25,149.375
-      s115.8749924-44.875,133.5-82.375s15.1666718-61.4583282,9.75-77.8749924c0,0,0.6666718,36.4166641-13.3333282,59.6666641
-      s-29.75,46.3333282-65.0833282,62.1666718s-74.1666718,13.75-95.4166718-19.25s-5.9166641-76.0833359-0.2916641-85.3333359
-      S72.3938675,33.7953796,118.7688675,20.7120476z"/>
-    <path fill="#EF3E23" d="M73.0188675,39.6287155c0,0,38.125-28.125,76.8749924-28.125s63,28.25,68.5,52.25s6,54.125-11.5,87.6249924
-      s-37.375,56-79.1249924,76.125s-84.625,2.75-84.625,2.75s25.9769745,25.8750153,71.0509872,16.5
-      c45.0740051-9.375,82.2406769-40.875,98.4073486-69.5s28.7916565-57.3749924,27.6666565-92.2499924s-23.75-54.5-31.25-60.25
-      s-23.1875-17.8125-58.1875-16.5625S86.4563675,29.8162155,73.0188675,39.6287155z"/>
-    <path fill="#F26222" d="M73.0188675,39.6287155c0,0,35-32.8125,82.4374924-32.8125s69.1875,24.8125,78.875,44.6875
-      s21.8125,70-12.1875,122.9999924s-74.625,67.375-93.625,71.625s-42.4311447,4.269165-59.1114044-1.2299957
-      c0,0,35.1947479,8.3966675,66.7780762-7.4366608s51.6666718-32.1666718,74.0833282-68.8333435
-      s25.9166718-72.7499924,22.1666718-93.9166565s-12.1666718-42.4166718-36.5-56.3333359s-56.7291718-10.531251-74.4791641-4.531251
-      S91.9876175,26.4099655,73.0188675,39.6287155z"/>
-  </g>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024"><title>Sunshine Mod · 站点章鱼与太阳光</title><desc>沿用 ahhtou.wang favicon 的纸巾章鱼，后方增加太阳光；系统负责材质与遮罩。</desc><rect width="1024" height="1024" fill="#0B1E31"/><circle cx="512" cy="415" r="180" fill="#FFB52E"/><path d="M740.00 415.00L768.00 415.00" fill="none" stroke="#FFCB60" stroke-width="24" stroke-linecap="round"/><path d="M709.45 529.00L733.70 543.00" fill="none" stroke="#FFCB60" stroke-width="24" stroke-linecap="round"/><path d="M626.00 612.45L640.00 636.70" fill="none" stroke="#FFCB60" stroke-width="24" stroke-linecap="round"/><path d="M512.00 643.00L512.00 671.00" fill="none" stroke="#FFCB60" stroke-width="24" stroke-linecap="round"/><path d="M398.00 612.45L384.00 636.70" fill="none" stroke="#FFCB60" stroke-width="24" stroke-linecap="round"/><path d="M314.55 529.00L290.30 543.00" fill="none" stroke="#FFCB60" stroke-width="24" stroke-linecap="round"/><path d="M284.00 415.00L256.00 415.00" fill="none" stroke="#FFCB60" stroke-width="24" stroke-linecap="round"/><path d="M314.55 301.00L290.30 287.00" fill="none" stroke="#FFCB60" stroke-width="24" stroke-linecap="round"/><path d="M398.00 217.55L384.00 193.30" fill="none" stroke="#FFCB60" stroke-width="24" stroke-linecap="round"/><path d="M512.00 187.00L512.00 159.00" fill="none" stroke="#FFCB60" stroke-width="24" stroke-linecap="round"/><path d="M626.00 217.55L640.00 193.30" fill="none" stroke="#FFCB60" stroke-width="24" stroke-linecap="round"/><path d="M709.45 301.00L733.70 287.00" fill="none" stroke="#FFCB60" stroke-width="24" stroke-linecap="round"/><g transform="translate(192 245) scale(10)"><ns0:g xmlns:ns0="http://www.w3.org/2000/svg" fill="#faf7f2" stroke="#faf7f2" stroke-linejoin="round">
+    <ns0:path d="M13.50 36 L19.67 36 L19.67 40 L11.30 53 L6.70 53 L13.50 40 Z M19.67 36 L25.83 36 L25.83 40 L20.80 56.5 L16.20 56.5 L19.67 40 Z M25.83 36 L32.00 36 L32.00 40 L30.30 58 L25.70 58 L25.83 40 Z M32.00 36 L38.17 36 L38.17 40 L38.80 58 L34.20 58 L32.00 40 Z M38.17 36 L44.33 36 L44.33 40 L48.30 56.5 L43.70 56.5 L38.17 40 Z M44.33 36 L50.50 36 L50.50 40 L57.80 53 L53.20 53 L44.33 40 Z" stroke-width="2" />
+    <ns0:path d="M23 9.5 H41.5 L50.5 19.5 V40 H13.5 V19 Z" stroke-width="3" />
+  </ns0:g>
+  </g><g transform="translate(192 245) scale(10)"><ns0:ellipse xmlns:ns0="http://www.w3.org/2000/svg" cx="25.5" cy="24.5" rx="1.9" ry="3.1" fill="#1c1c1f" />
+  <ns0:ellipse xmlns:ns0="http://www.w3.org/2000/svg" cx="38.5" cy="24.5" rx="1.9" ry="3.1" fill="#1c1c1f" />
+  <ns0:path xmlns:ns0="http://www.w3.org/2000/svg" d="M28.6 30.6 q1.7 2.8 3.4 0 q1.7 2.8 3.4 0" fill="none" stroke="#1c1c1f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+</g></svg>

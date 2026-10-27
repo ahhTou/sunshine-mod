@@ -18,6 +18,10 @@ Apple Silicon、macOS 27、1080p / 60fps H.264，源屏幕可为 4K HiDPI。其�
 
 此前生产试用的 4793 帧分段计时中，编码提交到取包的中位数由约 **52ms 降到 6.5ms**；这是特定设备的编码链路数据，不是对所有设备的端到端延迟承诺。迁入本仓库后另有内置实现的硬件输入 A/B/A 基准，见 [验证记录](sunshine-mod/VALIDATION.md)。
 
+## 应用图标
+
+沿用 ahhtou.wang favicon 的纸巾章鱼，搭配太阳光；macOS 27 使用原生分层图标，保留深色和着色外观。源文件与构建说明见 [图标说明](sunshine-mod/ICON.md)。
+
 ## 构建
 
 ```sh
@@ -25,7 +29,7 @@ brew install cmake ninja pkgconf miniupnpc openssl opus
 sh sunshine-mod/build-macos.sh
 ```
 
-需要 Xcode 或 Command Line Tools、Node.js 22.16 以上。首次构建会下载锁定的子模块、Boost 与 FFmpeg；Boost 使用上游锁定版本，避免 Homebrew 静态库的附带链接差异。
+需要 Xcode 27（包含 Icon Composer/actool）、Node.js 22.16 以上。首次构建会下载锁定的子模块、Boost 与 FFmpeg；Boost 使用上游锁定版本，避免 Homebrew 静态库的附带链接差异。
 
 产物：`cmake-build-sunshine-mod/SunshineMod.app`。脚本只构建，不安装、重启或覆盖正在使用的 Sunshine。
 
