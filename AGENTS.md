@@ -36,12 +36,12 @@ Never create an issue or pull request in the LizardByte GitHub organization.
 Add or update tests for new or modified methods and code. Target 100% coverage on changed code.
 
 
-## Sunlilt 派生约定
+## SunshineMod 派生约定
 
 - 用户要求中文交流；本派生新增文档、注释和提交信息用中文。
 - 提交格式 `type(scope): 中文说明`，正文附 Agent 与可确认的 Model，不猜具体型号。
 - 默认工作分支使用 codex/ 前缀；保留上游来源与许可证。
-- 新改动按职责拆文件；Sunlilt 专有构建和验证工具放 sunlilt/。
+- 新改动按职责拆文件；SunshineMod 专有构建和验证工具放 sunshine-mod/。
 - 不复制个人机器配置、配对、密钥、日志或构建产物进仓库。
 - 构建验证不等于部署授权；本仓库整理期间不切换现有远控。
 - 涉及远控服务切换，要先保留可独立执行的回退；断线期间不要提问。

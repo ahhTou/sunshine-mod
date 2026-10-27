@@ -17,7 +17,7 @@
 #include "src/platform/macos/av_img_t.h"
 #include "src/platform/macos/av_video.h"
 #include "src/platform/macos/sck_video.h"
-#include "src/platform/macos/sunlilt_capture.h"
+#include "src/platform/macos/sunshine_mod_capture.h"
 #include "src/platform/macos/misc.h"
 #include "src/platform/macos/nv12_zero_device.h"
 
@@ -261,7 +261,7 @@ namespace platf {
     BOOST_LOG(info) << "Configuring selected display ("sv << display->display_id << ") to stream"sv;
 
     // 8-bit 默认使用 SCK；capture=avfoundation 或 10-bit 保留原路径。
-    Class capture_class = sunlilt::use_sck(config::video.capture, video::colorspace_from_client_config(config, false).bit_depth) ? [SCKVideo class] : [AVVideo class];
+    Class capture_class = sunshine_mod::use_sck(config::video.capture, video::colorspace_from_client_config(config, false).bit_depth) ? [SCKVideo class] : [AVVideo class];
     display->av_capture = [[capture_class alloc] initWithDisplay:display->display_id frameRate:config.framerate];
 
     if (!display->av_capture) {

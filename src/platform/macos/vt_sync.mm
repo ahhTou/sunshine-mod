@@ -12,10 +12,10 @@ extern "C" OSStatus VTCompressionSessionEncodeFrame(VTCompressionSessionRef sess
   static Encode original = reinterpret_cast<Encode>(dlsym(RTLD_NEXT, "VTCompressionSessionEncodeFrame"));
   if (!original) return kVTInvalidSessionErr;
   OSStatus result = original(session,image,pts,duration,properties,source,flags);
-  const char *setting = std::getenv("SUNLILT_VT_SYNC");
+  const char *setting = std::getenv("SUNSHINE_MOD_VT_SYNC");
   if (result || (setting && setting[0] == '0')) return result;
   result = VTCompressionSessionCompleteFrames(session,pts);
   static std::atomic<bool> announced{false};
-  if (!announced.exchange(true)) std::fprintf(stderr,"[Sunlilt] 当前帧同步完成，状态=%d\n",(int)result);
+  if (!announced.exchange(true)) std::fprintf(stderr,"[SunshineMod] 当前帧同步完成，状态=%d\n",(int)result);
   return result;
 }

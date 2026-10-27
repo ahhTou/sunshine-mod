@@ -188,7 +188,7 @@ int sunshine_sck_diagnostic(const char *mode) {
     }
     result[@"status"] = @(status);
     NSData *data = [NSJSONSerialization dataWithJSONObject:result options:NSJSONWritingPrettyPrinted error:nil];
-    [data writeToFile:@"/private/tmp/sunlilt-diagnostic.json" atomically:YES];
+    [data writeToFile:@"/private/tmp/sunshine-mod-diagnostic.json" atomically:YES];
     fprintf(stdout, "%s\n", [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] UTF8String]);
     return status;
   }

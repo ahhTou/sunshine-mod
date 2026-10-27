@@ -108,7 +108,7 @@ namespace platf {
       homedir = getpwuid(geteuid())->pw_dir;
     }
 
-    return fs::path {homedir} / ".config/sunlilt"sv;
+    return fs::path {homedir} / ".config/sunshine-mod"sv;
   }
 
   using ifaddr_t = util::safe_ptr<ifaddrs, freeifaddrs>;

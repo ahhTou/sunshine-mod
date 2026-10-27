@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.24)
 # `third-party/libvirtualhid` requires 3.24
 # todo - set this conditionally
 
-project(Sunlilt VERSION 0.1.0
+project(SunshineMod VERSION 0.1.0
         DESCRIPTION "Self-hosted game stream host for Moonlight"
         HOMEPAGE_URL "https://ahhtou.wang")
 
@@ -22,7 +22,7 @@ endif()
 
 set(PROJECT_LICENSE "GPL-3.0-only")
 
-set(PROJECT_FQDN "wang.ahhtou.sunlilt")
+set(PROJECT_FQDN "wang.ahhtou.sunshine-mod")
 
 set(PROJECT_BRIEF_DESCRIPTION "GameStream host for Moonlight")  # must be <= 35 characters
 
