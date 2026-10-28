@@ -281,3 +281,19 @@ TEST_F(ConfigPersistenceTest, ParsesNvencTwoPassModesAndDefaultsUnknownValues) {
     EXPECT_EQ(config::video.nv.two_pass, expected) << setting;
   }
 }
+
+/** @brief 桌面选项按独立配置解析；拒绝无效程序坞位置。 */
+TEST(ConfigParsingTest, MacDesktopSettingsValidateDockPosition) {
+  auto original_hide = config::video.macos_hide_cursor;
+  auto original_dock = config::video.macos_dock_position;
+  config::apply_config_for_test("macos_hide_cursor = enabled\nmacos_dock_position = 4\n");
+  EXPECT_TRUE(config::video.macos_hide_cursor);
+  EXPECT_EQ(config::video.macos_dock_position, 4);
+  config::apply_config_for_test("macos_hide_cursor = disabled\nmacos_dock_position = 1\n");
+  EXPECT_FALSE(config::video.macos_hide_cursor);
+  EXPECT_EQ(config::video.macos_dock_position, 0);
+  config::apply_config_for_test("macos_dock_position = 9\n");
+  EXPECT_EQ(config::video.macos_dock_position, 0);
+  config::video.macos_hide_cursor = original_hide;
+  config::video.macos_dock_position = original_dock;
+}

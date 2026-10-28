@@ -38,6 +38,7 @@
 
 // local includes
 #include "misc.h"
+#include "session.h"
 #include "src/boost_process_compat.h"
 #include "src/config.h"
 #include "src/entry_handler.h"
@@ -343,7 +344,7 @@ namespace platf {
     }
     // Record that we determined that we have the screen capture permission.
     screen_capture_allowed = true;
-    return std::make_unique<deinit_t>();
+    return session::init();
   }
 
   fs::path appdata() {
@@ -515,11 +516,11 @@ namespace platf {
   }
 
   void streaming_will_start() {
-    // Nothing to do
+    session::set_streaming(true);
   }
 
   void streaming_will_stop() {
-    // Nothing to do
+    session::set_streaming(false);
   }
 
   static pid_t g_restart_child_pid = 0;  ///< PID of the restarted child process for signal forwarding.

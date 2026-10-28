@@ -797,6 +797,8 @@ namespace config {
       2,  // vk.quality (default: 2 = balanced, 1 = speed, 3 = quality)
     },
 
+    false,  // macos_hide_cursor
+    0,  // macos_dock_position
     {},  // capture
     false,  // fp16_sdr_gamma_encoded
     {},  // encoder
@@ -1726,6 +1728,11 @@ namespace config {
       video.vk.quality = it->second;
     }
 
+    bool_f(vars, "macos_hide_cursor", video.macos_hide_cursor);
+    int_between_f(vars, "macos_dock_position", video.macos_dock_position, {0, 4});
+    if (video.macos_dock_position == 1) {
+      video.macos_dock_position = 0;
+    }
     string_f(vars, "capture", video.capture);
     bool_f(vars, "fp16_sdr_gamma_encoded", video.fp16_sdr_gamma_encoded);
     string_f(vars, "encoder", video.encoder);

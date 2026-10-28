@@ -141,6 +141,8 @@ namespace config {
       int quality;  ///< Vulkan encoder quality preset: 1 = speed, 2 = balanced (default), 3 = quality.
     } vk;  ///< Vulkan encoder options.
 
+    bool macos_hide_cursor;  ///< 推流期间隐藏本机真实指针。
+    int macos_dock_position;  ///< 推流期间程序坞位置：0 保持、2 底部、3 左侧、4 右侧。
     std::string capture;  ///< Capture backend name selected by configuration.
     bool fp16_sdr_gamma_encoded;  ///< Treat FP16 captures of SDR displays as already sRGB gamma-encoded (Windows).
     std::string encoder;  ///< Encoder backend name selected by configuration.

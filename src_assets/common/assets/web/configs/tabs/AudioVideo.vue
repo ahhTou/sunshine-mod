@@ -6,6 +6,7 @@ import AdapterNameSelector from './audiovideo/AdapterNameSelector.vue'
 import DisplayOutputSelector from './audiovideo/DisplayOutputSelector.vue'
 import DisplayDeviceOptions from "./audiovideo/DisplayDeviceOptions.vue";
 import DisplayModesSettings from "./audiovideo/DisplayModesSettings.vue";
+import MacSessionSettings from './audiovideo/MacSessionSettings.vue'
 import Checkbox from "../../Checkbox.vue";
 
 const props = defineProps({
@@ -18,6 +19,7 @@ const config = ref(props.config)
 
 <template>
   <div id="audio-video" class="config-page">
+    <MacSessionSettings v-if="platform === 'macos'" :config="config" />
     <!-- Audio Sink -->
     <div class="mb-3">
       <label for="audio_sink" class="form-label">{{ $t('config.audio_sink') }}</label>

@@ -12,6 +12,21 @@ Sunshine 的个人小改版，主要优化 macOS 屏幕采集与编码延迟，�
 - **独立身份**：`SunshineMod.app` / `wang.ahhtou.sunshine-mod`；macOS 配置目录 `~/.config/sunshine-mod/`，配置文件名继续使用 `sunshine.conf`。
 - **采集自检**：保留不启动服务的权限检查与 NV12 / BGRA 连续启停自检。
 
+## 推流桌面设置
+
+Web 管理界面 → 配置 → 音频/视频 →「Sunshine Mod · 本机桌面」：
+
+- 推流期间隐藏本机真实指针（默认关闭），最后一个连接结束后恢复。
+- 推流期间程序坞保持原位或移至左侧、底部、右侧（默认保持原位），断开后恢复原位置及对齐方式。
+- 保存并应用后，在下一次推流生效。多个客户端共享一轮桌面设置；正常退出同步恢复。
+- 程序坞原位置写入当前配置文件旁的 `session-dock.plist`；异常退出后下次启动恢复。写入失败时不修改程序坞。
+- 使用 macOS 私有桌面接口；系统升级后可能失效，不影响推流本身。不需要独立 MoonSession 或电源断言轮询。
+
+配置键：`macos_hide_cursor = enabled/disabled`、`macos_dock_position = 0/2/3/4`（保持/底部/左侧/右侧）。
+SCK 不采集指针的行为独立于本机指针可见性。
+
+待办：Web 界面配置推流期间的屏幕分辨率，并在结束后恢复；本次不实现。
+
 ## 当前验证范围
 
 Apple Silicon、macOS 27、1080p / 60fps H.264，源屏幕可为 4K HiDPI。其他平台继承上游源码，但本派生改动没有在 Windows / Linux 验证；不把这些平台标为已支持的新发行版。

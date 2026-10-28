@@ -38,6 +38,8 @@
     "id": "av",
     "nameKey": "config.category_audio_video",
     "options": {
+      "macos_hide_cursor": "disabled",
+      "macos_dock_position": 0,
       "audio_sink": "",
       "virtual_sink": "",
       "stream_audio": "enabled",
