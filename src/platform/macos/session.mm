@@ -115,13 +115,17 @@ namespace platf::session {
           return;
         }
         set_dock_(orientation, pinning);
-        int actual = 0, actual_pin = 0;
-        get_dock_(&actual, &actual_pin);
-        if (actual == orientation && actual_pin == pinning) {
-          [[NSFileManager defaultManager] removeItemAtPath:path_ error:nil];
-        } else {
-          BOOST_LOG(warning) << "程序坞恢复未完成，保留记录供下次启动重试";
+        // CoreDock 更新是异步的，不能在设置后的第一次查询就判定恢复失败。
+        for (int attempt = 0; attempt < 40; ++attempt) {
+          int actual = 0, actual_pin = 0;
+          get_dock_(&actual, &actual_pin);
+          if (actual == orientation && actual_pin == pinning) {
+            [[NSFileManager defaultManager] removeItemAtPath:path_ error:nil];
+            return;
+          }
+          std::this_thread::sleep_for(std::chrono::milliseconds(25));
         }
+        BOOST_LOG(warning) << "程序坞恢复未完成，保留记录供下次启动重试";
       }
 
     private:
