@@ -54,6 +54,8 @@ set(PLATFORM_TARGET_FILES
         "${CMAKE_SOURCE_DIR}/src/platform/macos/av_video.m"
         "${CMAKE_SOURCE_DIR}/src/platform/macos/sck_video.h"
         "${CMAKE_SOURCE_DIR}/src/platform/macos/sck_video.m"
+        "${CMAKE_SOURCE_DIR}/src/platform/macos/sck_frame_copy.h"
+        "${CMAKE_SOURCE_DIR}/src/platform/macos/sck_frame_copy.m"
         "${CMAKE_SOURCE_DIR}/src/platform/macos/vt_sync.mm"
         "${CMAKE_SOURCE_DIR}/src/platform/macos/display.mm"
         "${CMAKE_SOURCE_DIR}/src/platform/macos/input.cpp"

@@ -1,5 +1,6 @@
 /** @file sck_video.m @brief 将 SCStream 的 IOSurface 帧交给 Sunshine 现有编码链路。 */
 #import "sck_video.h"
+#import "sck_frame_copy.h"
 
 #import <ApplicationServices/ApplicationServices.h>
 #import <IOKit/pwr_mgt/IOPMLib.h>
@@ -27,6 +28,10 @@
   double _started, _lastDelivered;  ///< 单调时钟，单位秒。
   double _interval;  ///< 请求帧间隔。
   IOPMAssertionID _powerAssertion;  ///< 沿用 moonsession 识别的推流断言。
+  SCKFrameCopier *_copier;  ///< 非空时先拷贝再交付，SCK 缓冲当场释放。
+  double _statStart, _lastCallback;  ///< 采集统计：窗口起点、上一次 SCK 回调。
+  int _statComplete, _statOther, _statRepeat;  ///< 窗口内完成帧、其他状态回调、保活重复帧。
+  double _statGapMax, _statCopyMax;  ///< 窗口内 SCK 回调最大空档、单帧拷贝最长（秒）。
 }
 @synthesize signal = _signal;
 
@@ -56,6 +61,8 @@
     self->_callback = nil;
     [self->_stream release];
     self->_stream = nil;
+    [self->_copier release];
+    self->_copier = nil;
     dispatch_semaphore_signal(self->_signal);
   };
   if (_stream) {
@@ -89,6 +96,11 @@
   _queue = dispatch_queue_create("wang.ahhtou.sunshine.sck", DISPATCH_QUEUE_SERIAL);
   _callback = [callback copy];
   _started = CACurrentMediaTime();
+  _statStart = _started;
+  if ([SCKFrameCopier enabled]) {
+    _copier = [[SCKFrameCopier alloc] init];
+  }
+  NSLog(@"[SCK] 帧拷贝%@（SUNSHINE_MOD_SCK_COPY）", _copier ? @"开启" : @"关闭");
   IOPMAssertionCreateWithName(kIOPMAssertionTypePreventUserIdleDisplaySleep, kIOPMAssertionLevelOn, CFSTR("Sunshine display capture"), &_powerAssertion);
   _interval = MAX(1.0 / 240.0, CMTimeGetSeconds(interval));
   _timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, _queue);
@@ -99,6 +111,7 @@
     }
     double elapsed = CACurrentMediaTime() - self->_lastDelivered;
     if (self->_latest && elapsed >= self->_interval * 1.5) {
+      self->_statRepeat++;
       [self deliver:self->_latest];
     } else if (!self->_latest && CACurrentMediaTime() - self->_started > 8) {
       [self finish:@"启动后 8 秒没有有效图像，结束采集"];
@@ -149,19 +162,46 @@
   return self;
 }
 
+/** @brief 每 10 秒一行：SCK 交了多少帧、有没有长时间不回调、拷贝花多久，用来对照推流卡顿。 */
+- (void)recordStats:(double)now {
+  if (_lastCallback) {
+    _statGapMax = MAX(_statGapMax, now - _lastCallback);
+  }
+  _lastCallback = now;
+  if (now - _statStart < 10) {
+    return;
+  }
+  NSLog(@"[SCK] %.0fs：完成帧 %d，其他状态 %d，保活重复 %d，回调最大空档 %.0fms，拷贝最长 %.1fms",
+        now - _statStart, _statComplete, _statOther, _statRepeat, _statGapMax * 1000, _statCopyMax * 1000);
+  _statStart = now;
+  _statComplete = _statOther = _statRepeat = 0;
+  _statGapMax = _statCopyMax = 0;
+}
+
 - (void)stream:(SCStream *)stream didOutputSampleBuffer:(CMSampleBufferRef)sample ofType:(SCStreamOutputType)type {
   if (_finished || type != SCStreamOutputTypeScreen || !CMSampleBufferDataIsReady(sample)) {
     return;
   }
+  double now = CACurrentMediaTime();
+  [self recordStats:now];
   NSArray *attachments = (NSArray *) CMSampleBufferGetSampleAttachmentsArray(sample, NO);
   if (![attachments.firstObject[SCStreamFrameInfoStatus] isEqual:@(SCFrameStatusComplete)] || !CMSampleBufferGetImageBuffer(sample)) {
+    _statOther++;
     return;
+  }
+  _statComplete++;
+  CMSampleBufferRef frame = _copier ? [_copier copySample:sample] : NULL;
+  if (_copier) {
+    _statCopyMax = MAX(_statCopyMax, CACurrentMediaTime() - now);
+  }
+  if (!frame) {
+    frame = (CMSampleBufferRef) CFRetain(sample);  // 未开启或拷贝失败：退回直接交付 SCK 原帧
   }
   if (_latest) {
     CFRelease(_latest);
   }
-  _latest = (CMSampleBufferRef) CFRetain(sample);
-  [self deliver:sample];
+  _latest = frame;
+  [self deliver:frame];
 }
 
 - (void)stream:(SCStream *)stream didStopWithError:(NSError *)error {
